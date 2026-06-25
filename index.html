@@ -4,4 +4,60 @@
     <title>首页 - 星河科技</title>
     <link rel="stylesheet" href="./style.css">
   </head>
-  <body><header class="site-header"><a href="./index.html" class="logo">星河科技</a><nav><a href="./index.html" class="active">首页</a><a href="./products.html">产品介绍</a><a href="./contact.html">联系我们</a></nav></header><main class="hero"><section><p class="eyebrow">Digital operations platform</p><h1>让业务系统更清晰、更高效地运转</h1><div data-message-form="true" id="iq5pu"><input type="text" name="content" placeholder="Write a message" id="ilk35"><button type="button" data-message-submit="true" id="id2ph">Save</button><span data-message-status="true" id="ir5ef"></span></div><p class="lead">星河科技为企业提供数据看板、自动化流程和客户协作工具。</p><a href="./products.html" class="button">查看产品</a></section><section class="hero-panel"><h2>今日概览</h2><div class="metric"><span>项目交付率</span><strong>96%</strong></div><div class="metric"><span>客户响应时间</span><strong>12m</strong></div></section></main></body></html>
+  <body><header class="site-header"><a href="./index.html" class="logo">星河科技</a><nav><a href="./index.html" class="active">首页</a><a href="./products.html">产品介绍</a><a href="./contact.html">联系我们</a></nav></header><main class="hero"><section><p class="eyebrow">Digital operations platform</p><h1>让业务系统更清晰、更高效地运转</h1><div data-message-form="true" id="iq5pu"><input type="text" name="content" placeholder="Write a message" id="ilk35"><button type="button" data-message-submit="true" id="id2ph">Save</button><span data-message-status="true" id="ir5ef"></span></div><p class="lead">星河科技为企业提供数据看板、自动化流程和客户协作工具。</p><a href="./products.html" class="button">查看产品</a></section><section class="hero-panel"><h2>今日概览</h2><div class="metric"><span>项目交付率</span><strong>96%</strong></div><div class="metric"><span>客户响应时间</span><strong>12m</strong></div></section></main><script>
+(function () {
+  if (window.__gyyMessageFormRuntimeReady) return;
+  window.__gyyMessageFormRuntimeReady = true;
+
+  window.__submitGyyMessageForm = async function (form, event) {
+    if (event) event.preventDefault();
+    var input = form.querySelector('[name="content"]');
+    var status = form.querySelector('[data-message-status]');
+    var button = form.querySelector('[data-message-submit]');
+    var content = (input && input.value ? input.value : "").trim();
+
+    if (!content) {
+      if (status) status.textContent = "Please enter a message.";
+      return false;
+    }
+
+    if (status) status.textContent = "Saving...";
+    if (button) button.disabled = true;
+
+    try {
+      var apiOrigin = document.referrer ? new URL(document.referrer).origin : window.location.origin;
+      if (!apiOrigin || apiOrigin === "null") apiOrigin = window.location.origin;
+      var response = await fetch(new URL("/api/messages", apiOrigin).toString(), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: content })
+      });
+      var body = await response.json().catch(function () { return {}; });
+      if (!response.ok || body.ok === false) throw new Error(body.error || "Save failed");
+      if (input) input.value = "";
+      if (status) status.textContent = "Saved.";
+    } catch (error) {
+      if (status) status.textContent = error.message || "Save failed.";
+    } finally {
+      if (button) button.disabled = false;
+    }
+
+    return false;
+  };
+
+  document.addEventListener("click", function (event) {
+    var button = event.target.closest && event.target.closest("[data-message-submit]");
+    if (!button) return;
+    var form = button.closest("[data-message-form]");
+    if (form) window.__submitGyyMessageForm(form, event);
+  });
+
+  document.addEventListener("keydown", function (event) {
+    if (event.key !== "Enter") return;
+    var input = event.target.closest && event.target.closest('[data-message-form] input[name="content"]');
+    if (!input) return;
+    var form = input.closest("[data-message-form]");
+    if (form) window.__submitGyyMessageForm(form, event);
+  });
+})();
+</script></body></html>
